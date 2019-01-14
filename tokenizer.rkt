@@ -18,6 +18,8 @@
         ["push" (token 'PUSH-TOKEN lexeme)]
         ["stop" (token 'STOP-TOKEN lexeme)]
         ["grab" (token 'GRAB-TOKEN lexeme)]
+        ["onexit" (token 'ONEXIT-TOKEN lexeme)]
+        ["count_items" (token 'WIN-COUNT-TOKEN lexeme)]
         ["==" (token 'EQUALS-TOKEN lexeme)]
         ["\n" (token 'NEWLINE-TOKEN lexeme)]
         [whitespace (token lexeme #:skip? #t)]

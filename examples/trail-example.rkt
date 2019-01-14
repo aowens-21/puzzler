@@ -1,8 +1,5 @@
-#lang br
-(require puzzler/tokenizer puzzler/parser brag/support)
+#lang puzzler
 
-(parse-to-datum (apply-tokenizer-maker make-tokenizer
-#<<TEST
 START_MAP
 P#####
 ######
@@ -30,7 +27,4 @@ interactions:
   "P" grab "T"
 
 win:
-  "T" count_items 0
-TEST
-))
-
+  "P" == "T"

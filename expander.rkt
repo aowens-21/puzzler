@@ -245,15 +245,17 @@
                                                [dest-y (- (second pos) dy)]
                                                [dest-val (get-grid-space dest-x dest-y)]
                                                [interaction (filter (lambda (i) (string=? dest-val (second i))) (hash-ref interaction-table id))]
+                                               [on-exit-action (filter (lambda (i) (string=? "onexit" (first i))) (hash-ref interaction-table id))] 
                                                [dest-val-empty? (string=? dest-val "#")]
                                                [has-interaction? (> (length interaction) 0)])
+                                          ; This is really unmaintainable, refactor so we can handle numerous actions (especially if custom actions are coming)
                                           (cond
                                             [(or dest-val-empty? (and has-interaction? (and (string=? (first (car interaction)) "push") (can-push? dest-val dest-x dest-y dx dy))))
-                                             (update-grid-space! (first pos) (second pos) "#")
+                                             (if (empty? on-exit-action) (update-grid-space! (first pos) (second pos) "#") (update-grid-space! (first pos) (second pos) (second (car on-exit-action))))
                                              (update-grid-space! (+ (first pos) dx) (- (second pos) dy) id)
                                              (list (+ (first pos) dx) (- (second pos) dy))]
                                             [(or dest-val-empty? (and has-interaction? (string=? (first (car interaction)) "grab")))
-                                             (update-grid-space! (first pos) (second pos) "#")
+                                             (if (empty? on-exit-action) (update-grid-space! (first pos) (second pos) "#") (update-grid-space! (first pos) (second pos) (second (car on-exit-action))))
                                              (update-grid-space! (+ (first pos) dx) (- (second pos) dy) id)
                                              (list (+ (first pos) dx) (- (second pos) dy))]
                                             [else
@@ -268,7 +270,17 @@
   (if game-win-flag
       (writeln "YOU WIN!!!")
       (for-each (lambda (rule)
-                  (for-each (lambda (ids)
+                  (if (string=? rule "count_items")
+                      (for-each (lambda (ids)
+                              (let* ([first-id (first ids)]
+                                     [second-id (second ids)]
+                                     [target-count (string->number second-id)]
+                                     [first-positions (hash-ref position-table first-id)])
+                                (if (= target-count (length first-positions))
+                                    (set! game-win-flag #t)
+                                    (void))))
+                                (hash-ref win-rule-table rule))
+                      (for-each (lambda (ids)
                               (let* ([first-id (first ids)]
                                      [second-id (second ids)]
                                      [first-positions (hash-ref position-table first-id)]
@@ -276,7 +288,7 @@
                                 (if (same-position? first-positions second-positions)
                                     (set! game-win-flag #t)
                                     (void))))
-                            (hash-ref win-rule-table rule)))
+                            (hash-ref win-rule-table rule))))
                   (hash-keys win-rule-table))))
 
 (define (same-position? pos-list1 pos-list2)
