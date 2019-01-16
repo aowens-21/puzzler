@@ -2,11 +2,11 @@
 
 START_MAP
 P#####
+###W##
+#WWW#W
 ######
-######
-######
-T####T
-##T###
+T##W#T
+W#TWWW
 END_MAP
 
 draw:
