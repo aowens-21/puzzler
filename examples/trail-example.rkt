@@ -1,15 +1,12 @@
-#lang br
-(require puzzler/tokenizer puzzler/parser brag/support)
+#lang puzzler
 
-(parse-to-datum (apply-tokenizer-maker make-tokenizer
-#<<TEST
 START_MAP
 P#####
 ######
 ######
 ######
-#####T
-######
+T####T
+##T###
 END_MAP
 
 draw:
@@ -31,6 +28,3 @@ interactions:
 
 win:
   "T" count_items 0
-TEST
-))
-
