@@ -5,8 +5,8 @@ P#####
 ######
 ######
 ######
-#####T
-######
+T####T
+##T###
 END_MAP
 
 draw:
@@ -27,4 +27,4 @@ interactions:
   "P" grab "T"
 
 win:
-  "P" == "T"
+  "T" count_items 0
