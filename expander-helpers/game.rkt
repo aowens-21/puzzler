@@ -6,7 +6,10 @@
 ; Map - A 2D grid represented as a vector of vectors
 ; Action - A movement rule, holds an entity and the dx and dy of the movement
 ; Interaction - A structure which holds a verb and two entities, one being the entity initiating the interaction and one
-;               being the entity acted upon
+;               being the entity acted upon. Interactions happen when one entity tries to move into a square with another
+;               entity in the square already.
+; Event - A structure similar to interactions but it is used for triggers in the game that aren't caused by
+;         one entity moving into a square with another.
 ; Win Rule - A rule which triggers the game win flag to be true
 
 ; Structure for an action which holds an entity, and dx/dy
@@ -17,6 +20,10 @@
 (struct interaction (rule-str receiver))
 (provide interaction-rule-str interaction-receiver)
 
+; Structure for events
+(struct event (rule-str result))
+(provide event-rule-str event-result)
+
 (define puzzler-game%
   (class object%
     (init-field renderer) ; Our renderer component
@@ -26,6 +33,7 @@
            [action-table (make-hash)] ; A hash table mapping keyboard inputs to actions
            [position-table (make-hash)] ; A hash table mapping entities (characters) to a list of coordinate (x,y) pairs
            [interaction-table (make-hash)] ; A hash table mapping an initiating entity to a verb and an acted upon entity
+           [event-table (make-hash)] ; A hash table mapping an entity to all of its events
            [win-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
            [initial-position-table (make-hash)] ; The position table at the start of the game
            [initial-game-grid void]) ; The map vector at the start of the game
@@ -76,6 +84,13 @@
         (if (hash-has-key? win-rule-table rule)
             (hash-set! win-rule-table rule (append (hash-ref win-rule-table rule) (list (list stripped-first-entity stripped-second-entity))))
             (hash-set! win-rule-table rule (list (list stripped-first-entity stripped-second-entity))))))
+    ; Adding an entry to the event table
+    (define/public (add-to-event-table! actor rule result)
+      (let* ([stripped-actor (string-replace actor "\"" "")]
+             [stripped-result (string-replace result "\"" "")])
+        (if (hash-has-key? event-table stripped-actor)
+            (hash-set! event-table stripped-actor (append (hash-ref event-table stripped-actor) (list (event rule stripped-result))))
+            (hash-set! event-table stripped-actor (list (event rule stripped-result))))))
     ; Sets the game win flag
     (define/public (set-game-win-flag! val)
       (set-field! win-flag this val))

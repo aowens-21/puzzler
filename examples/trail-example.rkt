@@ -21,10 +21,12 @@ action:
   "P": "right" -> (1, 0)
 
 interactions:
-  "P" onexit "W"
   "P" stop "W"
   "W" stop "W"
   "P" grab "T"
+
+events:
+  "P" onexit "W"
 
 win:
   "T" count_items 0

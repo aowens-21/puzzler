@@ -2,7 +2,7 @@
 
 puzzler-program: (puzzler-line)+
 
-@puzzler-line: puzzler-map | draw-block | action-block | win-block | interactions-block | /NEWLINE-TOKEN
+@puzzler-line: puzzler-map | draw-block | action-block | win-block | interactions-block | events-block | /NEWLINE-TOKEN
 
 puzzler-map: /START-MAP-TOKEN /NEWLINE-TOKEN (map-row)+ /END-MAP-TOKEN
 
@@ -18,7 +18,11 @@ action-rule: ID /":" STRING-TOKEN /RULE-RESULT-TOKEN /"(" NUM-TOKEN /"," NUM-TOK
 
 interactions-block: /INTERACTIONS-TOKEN /NEWLINE-TOKEN (interaction-rule)+
 
-interaction-rule: (ID PUSH-TOKEN ID | ID STOP-TOKEN ID | ID GRAB-TOKEN ID | ID ONEXIT-TOKEN ID) /(NEWLINE-TOKEN)?
+interaction-rule: (ID PUSH-TOKEN ID | ID STOP-TOKEN ID | ID GRAB-TOKEN ID) /(NEWLINE-TOKEN)?
+
+events-block: /EVENTS-TOKEN /NEWLINE-TOKEN (event-rule)+
+
+event-rule: (ID ONEXIT-TOKEN ID) /(NEWLINE-TOKEN)?
 
 win-block: /WIN-TOKEN /NEWLINE-TOKEN (win-rule)+
 

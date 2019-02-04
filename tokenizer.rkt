@@ -15,6 +15,7 @@
         ["action:" (token 'ACTION-TOKEN)]
         ["win:" (token 'WIN-TOKEN)]
         ["interactions:" (token 'INTERACTIONS-TOKEN)]
+        ["events:" (token 'EVENTS-TOKEN)]
         ["push" (token 'PUSH-TOKEN lexeme)]
         ["stop" (token 'STOP-TOKEN lexeme)]
         ["grab" (token 'GRAB-TOKEN lexeme)]
