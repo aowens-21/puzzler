@@ -2,7 +2,7 @@
 
 puzzler-program: (puzzler-line)+
 
-@puzzler-line: puzzler-map | draw-block | action-block | win-block | interactions-block | events-block | /NEWLINE-TOKEN
+@puzzler-line: puzzler-map | draw-block | action-block | win-block | lose-block | interactions-block | events-block | /NEWLINE-TOKEN
 
 puzzler-map: /START-MAP-TOKEN /NEWLINE-TOKEN (map-row)+ /END-MAP-TOKEN
 
@@ -26,4 +26,8 @@ event-rule: (ID ONEXIT-TOKEN ID) /(NEWLINE-TOKEN)?
 
 win-block: /WIN-TOKEN /NEWLINE-TOKEN (win-rule)+
 
-win-rule: ID EQUALS-TOKEN ID | ID WIN-COUNT-TOKEN NUM-TOKEN
+win-rule: ID COUNT-ITEMS-TOKEN NUM-TOKEN
+
+lose-block: /LOSE-TOKEN /NEWLINE-TOKEN (lose-rule)+
+
+lose-rule: ID COUNT-ITEMS-TOKEN NUM-TOKEN

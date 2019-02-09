@@ -28,6 +28,7 @@
   (class object%
     (init-field renderer) ; Our renderer component
     (field [win-flag #f]
+           [lose-flag #f]
            [map-vector (vector "")] ; A vector of vectors representing the 2D grid of the game
            [entity-image-table (make-hash)] ; A hash table mapping entities to their drawable image path
            [action-table (make-hash)] ; A hash table mapping keyboard inputs to actions
@@ -35,6 +36,7 @@
            [interaction-table (make-hash)] ; A hash table mapping an initiating entity to a verb and an acted upon entity
            [event-table (make-hash)] ; A hash table mapping an entity to all of its events
            [win-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
+           [lose-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
            [initial-position-table (make-hash)] ; The position table at the start of the game
            [initial-game-grid void]) ; The map vector at the start of the game
     ; Setting the game's map vector, which is the representation of
@@ -84,6 +86,13 @@
         (if (hash-has-key? win-rule-table rule)
             (hash-set! win-rule-table rule (append (hash-ref win-rule-table rule) (list (list stripped-first-entity stripped-second-entity))))
             (hash-set! win-rule-table rule (list (list stripped-first-entity stripped-second-entity))))))
+    ; Adding entry to the lose rule table
+    (define/public (add-to-lose-rule-table! first-entity rule second-entity)
+      (let* ([stripped-first-entity (string-replace first-entity "\"" "")]
+             [stripped-second-entity (string-replace second-entity "\"" "")])
+        (if (hash-has-key? lose-rule-table rule)
+            (hash-set! lose-rule-table rule (append (hash-ref lose-rule-table rule) (list (list stripped-first-entity stripped-second-entity))))
+            (hash-set! lose-rule-table rule (list (list stripped-first-entity stripped-second-entity))))))
     ; Adding an entry to the event table
     (define/public (add-to-event-table! actor rule result)
       (let* ([stripped-actor (string-replace actor "\"" "")]
@@ -94,6 +103,9 @@
     ; Sets the game win flag
     (define/public (set-game-win-flag! val)
       (set-field! win-flag this val))
+    ; Setting game lose flag
+    (define/public (set-game-lose-flag! val)
+      (set-field! lose-flag this val))
     ; Updates a grid space on the map vector
     (define/public (update-grid-space! val x y)
       (vector-set! (vector-ref map-vector y) x val))
@@ -119,7 +131,8 @@
              [init-total-copy (vector-map vector-copy init-copy-outer)])
         (set-map-vector! init-total-copy)
         (set-position-table! (hash-copy initial-position-table))
-        (set-game-win-flag! #f)))
+        (set-game-win-flag! #f)
+        (set-game-lose-flag! #f)))
     ; Sets the game's renderer component, which will be an instance of the puzzler-renderer% class
     (define/public (set-renderer! new-renderer)
       (set-field! renderer this new-renderer))

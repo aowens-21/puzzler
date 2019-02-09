@@ -98,6 +98,14 @@
   #'(send puzzler-game add-to-win-rule-table! FIRST-ID RULE SECOND-ID))
 (provide win-rule)
 
+(define-macro (lose-block RULE ...)
+  #'(void RULE ...))
+(provide lose-block)
+
+(define-macro (lose-rule FIRST-ID RULE SECOND-ID)
+  #'(send puzzler-game add-to-lose-rule-table! FIRST-ID RULE SECOND-ID))
+(provide lose-rule)
+
 (define-macro (events-block RULE ...)
   #'(void RULE ...))
 (provide events-block)
@@ -176,7 +184,7 @@
     (cond
       [(string=? key-str "r")
        (send puzzler-game restart-game)]
-      [(hash-has-key? action-table key-str)
+      [(and (not (get-field lose-flag puzzler-game)) (hash-has-key? action-table key-str))
        (for-each (lambda (action)
                    (let* ([id (action-entity action)]
                           [dx (string->number (action-dx action))]
@@ -216,6 +224,7 @@
                  (hash-ref action-table key-str))]
       [else (void)]))
   (handle-win-rules)
+  (handle-lose-rules)
   (send game-canvas refresh-now))
 
 ; Performs all events for a given actor entity
@@ -259,6 +268,33 @@
                                     (void))))
                             (hash-ref win-rule-table rule))))
                   (hash-keys win-rule-table)))))
+
+(define (handle-lose-rules)
+  (let* ([lose-rule-table (get-field lose-rule-table puzzler-game)])
+    (if (get-field lose-flag puzzler-game)
+        (writeln "YOU LOSE!!!")
+        (for-each (lambda (rule)
+                    (if (string=? rule "count_items")
+                        (for-each (lambda (ids)
+                                    (let* ([first-id (first ids)]
+                                           [second-id (second ids)]
+                                           [target-count (string->number second-id)]
+                                           [object-positions (hash-ref (get-field position-table puzzler-game) first-id)])
+                                      (if (= target-count (length object-positions))
+                                          (send puzzler-game set-game-lose-flag! #t)
+                                          (void))))
+                                  (hash-ref lose-rule-table rule))
+                        (for-each (lambda (ids)
+                                    (let* ([game-position-table (get-field position-table puzzler-game)]
+                                           [first-id (first ids)]
+                                           [second-id (second ids)]
+                                           [first-positions (hash-ref game-position-table first-id)]
+                                           [second-positions (hash-ref game-position-table second-id)])
+                                      (if (same-position? first-positions second-positions)
+                                          (send puzzler-game set-game-lose-flag! #t)
+                                          (void))))
+                                  (hash-ref lose-rule-table rule))))
+                  (hash-keys lose-rule-table)))))
 
 (define (same-position? pos-list1 pos-list2)
   (let* ([pos-set1 (list->set pos-list1)]
