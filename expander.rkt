@@ -247,26 +247,16 @@
   (if (get-field win-flag puzzler-game)
       (writeln "YOU WIN!!!")
       (for-each (lambda (rule)
-                  (if (string=? rule "count_items")
-                      (for-each (lambda (ids)
-                              (let* ([first-id (first ids)]
-                                     [second-id (second ids)]
-                                     [target-count (string->number second-id)]
-                                     [object-positions (hash-ref (get-field position-table puzzler-game) first-id)])
-                                (if (= target-count (length object-positions))
-                                    (send puzzler-game set-game-win-flag! #t)
-                                    (void))))
-                                (hash-ref win-rule-table rule))
-                      (for-each (lambda (ids)
-                              (let* ([game-position-table (get-field position-table puzzler-game)]
-                                     [first-id (first ids)]
-                                     [second-id (second ids)]
-                                     [first-positions (hash-ref game-position-table first-id)]
-                                     [second-positions (hash-ref game-position-table second-id)])
-                                (if (same-position? first-positions second-positions)
-                                    (send puzzler-game set-game-win-flag! #t)
-                                    (void))))
-                            (hash-ref win-rule-table rule))))
+                  (cond
+                    [(string=? rule "count_items")
+                     (if (count-items-rule-fulfilled? (hash-ref win-rule-table rule))
+                           (send puzzler-game set-game-win-flag! #t)
+                           (void))]
+                    [(string=? rule "straight_path_to")
+                     (if (straight-path-to-rule-fulfilled? (hash-ref win-rule-table rule))
+                           (send puzzler-game set-game-win-flag! #t)
+                           (void))]
+                    [else void]))
                   (hash-keys win-rule-table)))))
 
 (define (handle-lose-rules)
@@ -274,27 +264,88 @@
     (if (get-field lose-flag puzzler-game)
         (writeln "YOU LOSE!!!")
         (for-each (lambda (rule)
-                    (if (string=? rule "count_items")
-                        (for-each (lambda (ids)
-                                    (let* ([first-id (first ids)]
-                                           [second-id (second ids)]
-                                           [target-count (string->number second-id)]
-                                           [object-positions (hash-ref (get-field position-table puzzler-game) first-id)])
-                                      (if (= target-count (length object-positions))
-                                          (send puzzler-game set-game-lose-flag! #t)
-                                          (void))))
-                                  (hash-ref lose-rule-table rule))
-                        (for-each (lambda (ids)
-                                    (let* ([game-position-table (get-field position-table puzzler-game)]
-                                           [first-id (first ids)]
-                                           [second-id (second ids)]
-                                           [first-positions (hash-ref game-position-table first-id)]
-                                           [second-positions (hash-ref game-position-table second-id)])
-                                      (if (same-position? first-positions second-positions)
-                                          (send puzzler-game set-game-lose-flag! #t)
-                                          (void))))
-                                  (hash-ref lose-rule-table rule))))
+                    (cond
+                      [(string=? rule "count_items")
+                       (if (count-items-rule-fulfilled? (hash-ref lose-rule-table rule))
+                           (send puzzler-game set-game-lose-flag! #t)
+                           (void))]
+                      [(string=? rule "straight_path_to")
+                       (if (straight-path-to-rule-fulfilled? (hash-ref lose-rule-table rule))
+                           (send puzzler-game set-game-lose-flag! #t)
+                           (void))]
+                      [else void]))
                   (hash-keys lose-rule-table)))))
+
+(define (count-items-rule-fulfilled? id-list)
+  (let ([fulfilled? #f])
+  (for-each (lambda (ids)
+              (let* ([first-id (first ids)]
+                     [second-id (second ids)]
+                     [target-count (string->number second-id)]
+                     [object-positions (hash-ref (get-field position-table puzzler-game) first-id)])
+                (if (= target-count (length object-positions))
+                    (set! fulfilled? #t)
+                    (void))))
+            id-list)
+    fulfilled?))
+
+(define (straight-path-to-rule-fulfilled? id-list)
+  (let ([fulfilled? #f])
+  (for-each (lambda (ids)
+              (let* ([first-id (first ids)]
+                     [second-id (second ids)]
+                     [first-id-positions (hash-ref (get-field position-table puzzler-game) first-id)]
+                     [second-id-positions (hash-ref (get-field position-table puzzler-game) second-id)])
+                (for-each (lambda (pos)
+                            (let* ([x (first pos)]
+                                   [y (second pos)]
+                                   [second-id-positions-in-same-row-or-col (filter (lambda (l) (or (= x (first l)) (= y (second l)))) second-id-positions)])
+                              (for-each (lambda (second-id-pos)
+                                          (if (= x (first second-id-pos))
+                                              (if (straight-path-same-x? x y (second second-id-pos))
+                                                  (set! fulfilled? #t)
+                                                  (void))
+                                              (if (straight-path-same-y? y x (first second-id-pos))
+                                                  (set! fulfilled? #t)
+                                                  (void))))
+                                        second-id-positions-in-same-row-or-col)))
+                          first-id-positions)))
+            id-list)
+    fulfilled?))
+
+(define (straight-path-same-x? x start-y end-y)
+  (cond
+    [(= (abs (- start-y end-y)) 1)
+     #t]
+    [(> start-y end-y)
+     (x-path-exists? x (+ end-y 1) start-y)]
+    [(< start-y end-y)
+     (x-path-exists? x (+ start-y 1) end-y)]))
+
+(define (x-path-exists? x current-y end-y)
+  (cond
+    [(= current-y end-y)
+     #t]
+    [(not (string=? "#" (send puzzler-game get-grid-space x current-y)))
+     #f]
+    [else (x-path-exists? x (+ current-y 1) end-y)]))
+
+(define (straight-path-same-y? y start-x end-x)
+  (cond
+    [(= (abs (- start-x end-x)) 1)
+     #t]
+    [(> start-x end-x)
+     (y-path-exists? y (+ end-x 1) start-x)]
+    [(< start-x end-x)
+     (y-path-exists? y (+ start-x 1) end-x)]))
+
+(define (y-path-exists? y current-x end-x)
+  (cond
+    [(= current-x end-x)
+     #t]
+    [(not (string=? "#" (send puzzler-game get-grid-space current-x y)))
+     #f]
+    [else (y-path-exists? y (+ current-x 1) end-x)]))
 
 (define (same-position? pos-list1 pos-list2)
   (let* ([pos-set1 (list->set pos-list1)]

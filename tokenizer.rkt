@@ -22,6 +22,7 @@
         ["grab" (token 'GRAB-TOKEN lexeme)]
         ["onexit" (token 'ONEXIT-TOKEN lexeme)]
         ["count_items" (token 'COUNT-ITEMS-TOKEN lexeme)]
+        ["straight_path_to" (token 'STRAIGHT-PATH-TO-TOKEN lexeme)]
         ["==" (token 'EQUALS-TOKEN lexeme)]
         ["\n" (token 'NEWLINE-TOKEN lexeme)]
         [whitespace (token lexeme #:skip? #t)]
