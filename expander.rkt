@@ -168,7 +168,6 @@
          [dest-val (send puzzler-game get-grid-space dest-x dest-y)]
          [dest-val-empty? (string=? dest-val "#")])
     (cond
-      ; TODO: weird pattern of #t #f #t #f, we can probably simplify this
       [dest-val-empty? (proceed-with-movement id x y dx dy) #t]
       [(not (send puzzler-game in-bounds? dest-x dest-y)) #f]
       [(string=? (interaction-rule-str (car (filter (lambda (i) (string=? dest-val (interaction-receiver i))) (hash-ref interaction-table id)))) "grab") (proceed-with-movement id x y dx dy) #t]
