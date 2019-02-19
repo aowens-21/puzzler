@@ -28,6 +28,8 @@
         [whitespace (token lexeme #:skip? #t)]
         ["START_MAP" (token 'START-MAP-TOKEN lexeme)]
         ["END_MAP" (token 'END-MAP-TOKEN lexeme)]
+        ["START_GOAL_MAP" (token 'START-GOAL-MAP-TOKEN lexeme)]
+        ["END_GOAL_MAP" (token 'END-GOAL-MAP-TOKEN lexeme)]
         ["->" (token 'RULE-RESULT-TOKEN lexeme)]
         [(or (:= 1 alphabetic) (:= 1 "#"))
          (token 'MAP-CHAR-TOKEN lexeme)]

@@ -11,6 +11,7 @@
 ; Event - A structure similar to interactions but it is used for triggers in the game that aren't caused by
 ;         one entity moving into a square with another.
 ; Win Rule - A rule which triggers the game win flag to be true
+; Lose Rule - A rule which triggers the game lose flag to be true (which stops all input besides restarting)
 
 ; Structure for an action which holds an entity, and dx/dy
 (struct action (entity dx dy))
@@ -38,6 +39,7 @@
            [win-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
            [lose-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
            [initial-position-table (make-hash)] ; The position table at the start of the game
+           [goal-position-table (make-hash)] ; The goal position table if a goal map is provided
            [initial-game-grid void]) ; The map vector at the start of the game
     ; Setting the game's map vector, which is the representation of
     ; a 2D grid as a vector of vectors.
@@ -58,6 +60,11 @@
       (let* ([entity-positions (hash-ref position-table entity)]
              [positions-without-target-pos (remove (list x y) entity-positions)])
         (hash-set! position-table entity positions-without-target-pos)))
+    ; Adds an entry to the goal position table, used during setup
+    (define/public (add-to-goal-position-table! entity x y)
+      (if (hash-has-key? goal-position-table entity)
+          (hash-set! goal-position-table entity (append (hash-ref goal-position-table entity) (list (list x y))))
+          (hash-set! goal-position-table entity (list (list x y)))))
     ; Adding an entry to the entity image table
     (define/public (add-to-entity-image-table! entity path)
       (let* ([stripped-entity (string-replace entity "\"" "")]

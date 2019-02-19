@@ -8,6 +8,7 @@
 
 ; Will be set by reading in map
 (define inner-map-index 0)
+(define inner-goal-map-index 0)
 
 ; The game's rendering component
 (define renderer (new puzzler-renderer%))
@@ -63,6 +64,15 @@
   #'(build-row CELL ...))
 (provide map-row)
 
+; Goal map macros, set up the goal position table
+(define-macro (puzzler-goal-map ROW ...)
+  #'(void ROW ...))
+(provide puzzler-goal-map)
+
+(define-macro (goal-map-row CELL ...)
+  #'(setup-goal-position-table CELL ...))
+(provide goal-map-row)
+
 ; Draw macros, sets up char -> image map
 (define-macro (draw-block RULE ...)
   #'(void RULE ...))
@@ -90,6 +100,7 @@
   #'(send puzzler-game add-to-interaction-table! ACTOR INTERACTION RECEIVER))
 (provide interaction-rule)
 
+; Win rule macros
 (define-macro (win-block RULE ...)
   #'(void RULE ...))
 (provide win-block)
@@ -98,6 +109,7 @@
   #'(send puzzler-game add-to-win-rule-table! FIRST-ID RULE SECOND-ID))
 (provide win-rule)
 
+; Lose rule macros
 (define-macro (lose-block RULE ...)
   #'(void RULE ...))
 (provide lose-block)
@@ -106,6 +118,7 @@
   #'(send puzzler-game add-to-lose-rule-table! FIRST-ID RULE SECOND-ID))
 (provide lose-rule)
 
+; Events macros
 (define-macro (events-block RULE ...)
   #'(void RULE ...))
 (provide events-block)
@@ -132,23 +145,60 @@
     (vector-set! (get-field initial-game-grid puzzler-game) inner-map-index (list->vector cells))
     (set! inner-map-index (add1 inner-map-index))))
 
+(define (setup-goal-position-table cell . rest)
+  (let ([cells (cons cell rest)])
+    (for-each (lambda (cell x-pos)
+                (cond
+                  [(not (string=? cell "#"))
+                   (send puzzler-game add-to-goal-position-table! cell x-pos inner-goal-map-index)]
+                  [else (void)]))
+              cells (build-list (length cells) values))
+    (set! inner-goal-map-index (add1 inner-goal-map-index))))
+
 (define (draw-game-state dc)
   (let* ([image-table (get-field entity-image-table puzzler-game)]
          [block-size (get-field block-size renderer)]
-         [block-positions (get-field block-positions renderer)])
-  (send dc set-brush "black" 'solid)
-  (for-each (lambda (y-draw grid-row)
-              (for-each (lambda (x-draw grid-space)
-                          (if (and (hash-has-key? image-table grid-space) (not (string=? grid-space "#")))
-                              (let ([path (hash-ref image-table grid-space)])
-                                (if (string=? path "rect")
-                                    (send dc draw-rectangle x-draw y-draw block-size block-size)
-                                    (send dc draw-bitmap (read-bitmap path) x-draw y-draw)))
-                              (void)))
-                        block-positions (vector->list grid-row)))
-            block-positions (vector->list (get-field map-vector puzzler-game))))
+         [block-positions (get-field block-positions renderer)]
+         [goal-position-table (get-field goal-position-table puzzler-game)])
+    (send dc set-brush "black" 'solid)
+    (if (not (hash-empty? goal-position-table))
+        (draw-goal-positions dc image-table block-size block-positions)
+        (void))
+    (for-each (lambda (y-draw grid-row)
+                (for-each (lambda (x-draw grid-space)
+                            (if (and (hash-has-key? image-table grid-space) (not (string=? grid-space "#")))
+                                (let ([path (hash-ref image-table grid-space)])
+                                  (if (string=? path "rect")
+                                      (send dc draw-rectangle x-draw y-draw block-size block-size)
+                                      (send dc draw-bitmap (read-bitmap path) x-draw y-draw)))
+                                (void)))
+                          block-positions (vector->list grid-row)))
+              block-positions (vector->list (get-field map-vector puzzler-game))))
   (send dc set-brush "white" 'solid))
 
+; Goes through the goal position table and draws the sprites for the objects in their
+; goal positions at some degree of transparency
+(define (draw-goal-positions dc image-table block-size block-positions)
+  (let ([goal-position-table (get-field goal-position-table puzzler-game)])
+    (for-each (lambda (key)
+                (for-each (lambda (pos)
+                            (let* ([path (hash-ref image-table key)]
+                                   [x (first pos)]
+                                   [y (second pos)]
+                                   [x-draw (list-ref block-positions x)]
+                                   [y-draw (list-ref block-positions y)])
+                              (cond
+                                [(string=? path "rect")
+                                 (send dc set-alpha 0.25)
+                                 (send dc draw-rectangle x-draw y-draw block-size block-size)
+                                 (send dc set-alpha 1)]
+                                [else
+                                 (send dc set-alpha 0.6)
+                                 (send dc draw-bitmap (read-bitmap path) x-draw y-draw)
+                                 (send dc set-alpha 1)])))
+                          (hash-ref goal-position-table key)))
+                (hash-keys goal-position-table))))
+                                 
 (define (proceed-with-movement id x y dx dy)
   (hash-set! (get-field position-table puzzler-game) id
              (map (lambda (pos)
@@ -223,6 +273,7 @@
                  (hash-ref action-table key-str))]
       [else (void)]))
   (handle-win-rules)
+  (check-goal-position-table)
   (handle-lose-rules)
   (send game-canvas refresh-now))
 
@@ -243,20 +294,44 @@
 
 (define (handle-win-rules)
   (let* ([win-rule-table (get-field win-rule-table puzzler-game)])
-  (if (get-field win-flag puzzler-game)
-      (writeln "YOU WIN!!!")
-      (for-each (lambda (rule)
-                  (cond
-                    [(string=? rule "count_items")
-                     (if (count-items-rule-fulfilled? (hash-ref win-rule-table rule))
-                           (send puzzler-game set-game-win-flag! #t)
-                           (void))]
-                    [(string=? rule "straight_path_to")
-                     (if (straight-path-to-rule-fulfilled? (hash-ref win-rule-table rule))
-                           (send puzzler-game set-game-win-flag! #t)
-                           (void))]
-                    [else void]))
-                  (hash-keys win-rule-table)))))
+    (cond
+      [(get-field win-flag puzzler-game)
+       (writeln "YOU WIN!!!")]
+      [else
+       (cond
+         [(check-goal-position-table)
+          (send puzzler-game set-game-win-flag! #t)
+          (void)]
+         [else
+          (for-each (lambda (rule)
+                      (cond
+                        [(string=? rule "count_items")
+                         (if (count-items-rule-fulfilled? (hash-ref win-rule-table rule))
+                             (send puzzler-game set-game-win-flag! #t)
+                             (void))]
+                        [(string=? rule "straight_path_to")
+                         (if (straight-path-to-rule-fulfilled? (hash-ref win-rule-table rule))
+                             (send puzzler-game set-game-win-flag! #t)
+                             (void))]
+                        [else void]))
+                    (hash-keys win-rule-table))])])))
+
+(define (check-goal-position-table)
+  (let* ([goal-position-table (get-field goal-position-table puzzler-game)]
+         [position-table (get-field position-table puzzler-game)]
+         [won? #t])
+    (cond
+      [(hash-empty? goal-position-table) (set! won? #f)]
+      [else
+       (for-each (lambda (entity)
+                   (let ([current-entity-positions (list->set (hash-ref position-table entity))])
+                   (for-each (lambda (pos)
+                               (if (set-member? current-entity-positions pos)
+                                   (void)
+                                   (set! won? #f)))
+                             (hash-ref goal-position-table entity))))
+                 (hash-keys goal-position-table))])
+    won?))
 
 (define (handle-lose-rules)
   (let* ([lose-rule-table (get-field lose-rule-table puzzler-game)])
