@@ -2,7 +2,7 @@
 
 (define puzzler-renderer%
   (class object%
-    (field [window-size 500] ; The actual size of the window on the GUI
+    (field [window-size 800] ; The actual size of the window on the GUI
            [margin 25] ; The space between grid squares
            [grid-size void] ; The number of rows/cols in the grid
            [block-size void] ; The size in pixels of each block (square) in the grid

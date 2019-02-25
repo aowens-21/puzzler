@@ -170,11 +170,17 @@
                                 (let ([path (hash-ref image-table grid-space)])
                                   (if (string=? path "rect")
                                       (send dc draw-rectangle x-draw y-draw block-size block-size)
-                                      (send dc draw-bitmap (read-bitmap path) x-draw y-draw)))
+                                      (send dc draw-bitmap (get-scaled-bitmap path block-size) x-draw y-draw)))
                                 (void)))
                           block-positions (vector->list grid-row)))
               block-positions (vector->list (get-field map-vector puzzler-game))))
   (send dc set-brush "white" 'solid))
+
+(define (get-scaled-bitmap path block-size)
+  (let* ([original-bitmap (read-bitmap path)]
+         [pixel-width (send original-bitmap get-width)]
+         [scale (/ pixel-width block-size)])
+    (read-bitmap path #:backing-scale scale)))
 
 ; Goes through the goal position table and draws the sprites for the objects in their
 ; goal positions at some degree of transparency
