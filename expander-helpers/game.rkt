@@ -30,41 +30,80 @@
     (init-field renderer) ; Our renderer component
     (field [win-flag #f]
            [lose-flag #f]
-           [map-vector (vector "")] ; A vector of vectors representing the 2D grid of the game
+           [maps-left 0] ; A counter of how many maps are left to complete in the games
+           [map-vector-list (list)] ; The immutable list of map-vectors in the game
+           [position-table-list (list)] ; The immutable list of position-tables in the game
+           [goal-position-table-list (list (make-hash))] ; The immutable list of goal position tables
+           [current-map-vector void] ; A vector of vectors representing the 2D grid of the game
            [entity-image-table (make-hash)] ; A hash table mapping entities to their drawable image path
            [action-table (make-hash)] ; A hash table mapping keyboard inputs to actions
-           [position-table (make-hash)] ; A hash table mapping entities (characters) to a list of coordinate (x,y) pairs
+           [current-position-table void] ; A hash table mapping entities (characters) to a list of coordinate (x,y) pairs
            [interaction-table (make-hash)] ; A hash table mapping an initiating entity to a verb and an acted upon entity
            [event-table (make-hash)] ; A hash table mapping an entity to all of its events
            [win-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
            [lose-rule-table (make-hash)] ; A hash table mapping a rule to a pair of entities
            [initial-position-table (make-hash)] ; The position table at the start of the game
-           [goal-position-table (make-hash)] ; The goal position table if a goal map is provided
+           [current-goal-position-table void] ; The goal position table if a goal map is provided
            [initial-game-grid void]) ; The map vector at the start of the game
+    ; Adds a passed vector to the list of map-vectors for the game, also
+    ; sets the current map-vector if it is void
+    (define/public (add-map-vector-to-list! vec)
+      (set-field! map-vector-list this (append map-vector-list (list vec)))
+      (set-field! maps-left this (add1 maps-left))
+      (if (eq? current-map-vector void)
+          (set-field! current-map-vector this (first map-vector-list))
+          (void)))
+    ; Adds a passed position table to the list of position tables,
+    ; also sets the current position-table if it is void
+    (define/public (add-position-table-to-list! pos-table)
+      (set-field! position-table-list this (append position-table-list (list pos-table)))
+      (if (eq? current-position-table void)
+          (set-field! current-position-table this (first position-table-list))
+          (void)))
+    ; Adds a passed goal position table to the this of goal position tables
+    (define/public (add-goal-position-table-to-list! pos-table)
+      (set-field! goal-position-table-list this (append goal-position-table-list (list pos-table)))
+      (if (eq? current-goal-position-table void)
+          (set-field! current-goal-position-table this (first goal-position-table-list))
+          (void)))
     ; Setting the game's map vector, which is the representation of
     ; a 2D grid as a vector of vectors.
-    (define/public (set-map-vector! new-map-vector)
-      (set-field! map-vector this new-map-vector))
+    (define/public (set-current-map-vector! new-map-vector)
+      (set-field! current-map-vector this new-map-vector))
+    ; Add an entry to the map vector at the passed index of the map-vector-list
+    (define/public (add-to-map-vector! map-vector-index entry-index entry)
+      (vector-set! (list-ref map-vector-list map-vector-index) entry-index entry))
     ; Setting the position table, a hash table mapping entities
     ; to a coordinate (x,y) pair.
-    (define/public (set-position-table! new-position-table)
-      (set-field! position-table this new-position-table))
-    ; Adding an entry to the position table, which updates if a key
+    (define/public (set-current-position-table! new-position-table)
+      (set-field! current-position-table this new-position-table))
+    ; Set the current goal position table
+    (define/public (set-current-goal-position-table! new-goal-position-table)
+      (set-field! current-goal-position-table this new-goal-position-table))
+    ; Adding an entry to the current position table, which updates if a key
     ; exists or creates a new entry if the key doesn't.
-    (define/public (add-to-position-table! entity x y)
-      (if (hash-has-key? position-table entity)
-      (hash-set! position-table entity (append (hash-ref position-table entity) (list (list x y))))
-      (hash-set! position-table entity (list (list x y)))))
+    (define/public (add-to-current-position-table! entity x y)
+      (if (hash-has-key? current-position-table entity)
+          (hash-set! current-position-table entity (append (hash-ref current-position-table entity) (list (list x y))))
+          (hash-set! current-position-table entity (list (list x y)))))
+    ; Adds an entry to the position table in position-table-list at the passed
+    ; index
+    (define/public (add-to-position-table! position-table-index entity x y)
+      (let ([pos-table (list-ref position-table-list position-table-index)])
+        (if (hash-has-key? pos-table entity)
+            (hash-set! pos-table entity (append (hash-ref pos-table entity) (list (list x y))))
+            (hash-set! pos-table entity (list (list x y))))))
     ; Removing an entry from the position table.
-    (define/public (remove-from-position-table! entity x y)
-      (let* ([entity-positions (hash-ref position-table entity)]
+    (define/public (remove-from-current-position-table! entity x y)
+      (let* ([entity-positions (hash-ref current-position-table entity)]
              [positions-without-target-pos (remove (list x y) entity-positions)])
-        (hash-set! position-table entity positions-without-target-pos)))
+        (hash-set! current-position-table entity positions-without-target-pos)))
     ; Adds an entry to the goal position table, used during setup
-    (define/public (add-to-goal-position-table! entity x y)
-      (if (hash-has-key? goal-position-table entity)
-          (hash-set! goal-position-table entity (append (hash-ref goal-position-table entity) (list (list x y))))
-          (hash-set! goal-position-table entity (list (list x y)))))
+    (define/public (add-to-goal-position-table! goal-position-table-index entity x y)
+      (let ([goal-pos-table (list-ref goal-position-table-list goal-position-table-index)])
+        (if (hash-has-key? goal-pos-table entity)
+            (hash-set! goal-pos-table entity (append (hash-ref goal-pos-table entity) (list (list x y))))
+            (hash-set! goal-pos-table entity (list (list x y))))))
     ; Adding an entry to the entity image table
     (define/public (add-to-entity-image-table! entity path)
       (let* ([stripped-entity (string-replace entity "\"" "")]
@@ -113,13 +152,16 @@
     ; Setting game lose flag
     (define/public (set-game-lose-flag! val)
       (set-field! lose-flag this val))
+    ; Sets the number of maps left
+    (define/public (set-maps-left! val)
+      (set-field! maps-left this val))
     ; Updates a grid space on the map vector
     (define/public (update-grid-space! val x y)
-      (vector-set! (vector-ref map-vector y) x val))
+      (vector-set! (vector-ref current-map-vector y) x val))
     ; Updates the map-vector and position table simultaneously
     (define/public (update-grid-space-and-position-table! val x y)
       (update-grid-space! val x y)
-      (add-to-position-table! val x y))
+      (add-to-current-position-table! val x y))
     ; Sets the initial map-vector to the given value
     (define/public (set-initial-game-grid! new-map-vector)
       (set-field! initial-game-grid this new-map-vector))
@@ -136,10 +178,22 @@
       ; it would start changing the initial grid copy.
       (let* ([init-copy-outer (vector-copy initial-game-grid)]
              [init-total-copy (vector-map vector-copy init-copy-outer)])
-        (set-map-vector! init-total-copy)
-        (set-position-table! (hash-copy initial-position-table))
+        (set-current-map-vector! init-total-copy)
+        (set-current-position-table! (hash-copy initial-position-table))
+        (set-current-goal-position-table! (hash-copy (first goal-position-table-list)))
         (set-game-win-flag! #f)
-        (set-game-lose-flag! #f)))
+        (set-game-lose-flag! #f)
+        (set-maps-left! (length map-vector-list))))
+    ; Advances the game's level by setting up the correct position tables and goal tables
+    (define/public (advance-level)
+      (set-field! maps-left this (sub1 maps-left))
+      ; Make copies of all the necessary values
+      (let* ([new-index (- (length map-vector-list) maps-left)]
+             [new-map-outer-copy (vector-copy (list-ref map-vector-list new-index))]
+             [new-map-total-copy (vector-map vector-copy new-map-outer-copy)])
+        (set-current-map-vector! new-map-total-copy)
+        (set-current-position-table! (hash-copy (list-ref position-table-list new-index)))
+        (set-current-goal-position-table! (hash-copy (list-ref goal-position-table-list new-index)))))  
     ; Sets the game's renderer component, which will be an instance of the puzzler-renderer% class
     (define/public (set-renderer! new-renderer)
       (set-field! renderer this new-renderer))
@@ -149,7 +203,7 @@
     ; Returns the entity that is in the given grid space
     (define/public (get-grid-space x y)
       (cond
-        [(in-bounds? x y) (vector-ref (vector-ref map-vector y) x)]
+        [(in-bounds? x y) (vector-ref (vector-ref current-map-vector y) x)]
         [else "OOB"]))
     (super-new)))
 (provide puzzler-game%)

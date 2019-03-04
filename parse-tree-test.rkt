@@ -24,7 +24,6 @@ action:
   "P": "right" -> (1, 0)
 
 interactions:
-  "P" onexit "W"
   "P" stop "W"
   "W" stop "W"
   "P" grab "T"

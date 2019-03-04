@@ -2,13 +2,17 @@
 
 puzzler-program: (puzzler-line)+
 
-@puzzler-line: puzzler-map | draw-block | action-block | win-block | lose-block | interactions-block | events-block | puzzler-goal-map | /NEWLINE-TOKEN
+@puzzler-line: puzzler-map-list | draw-block | action-block | win-block | lose-block | interactions-block | events-block | puzzler-goal-map-list | /NEWLINE-TOKEN
 
-puzzler-map: /START-MAP-TOKEN /NEWLINE-TOKEN (map-row)+ /END-MAP-TOKEN
+puzzler-map-list: /START-MAP-TOKEN (puzzler-map)+ /END-MAP-TOKEN
+
+puzzler-map: /NEWLINE-TOKEN (map-row)+
 
 map-row: (MAP-CHAR-TOKEN)+ /NEWLINE-TOKEN
 
-puzzler-goal-map: /START-GOAL-MAP-TOKEN /NEWLINE-TOKEN (goal-map-row)+ /END-GOAL-MAP-TOKEN
+puzzler-goal-map-list: /START-GOAL-MAP-TOKEN (puzzler-goal-map)+ /END-GOAL-MAP-TOKEN
+
+puzzler-goal-map: /NEWLINE-TOKEN (goal-map-row)+
 
 goal-map-row: (MAP-CHAR-TOKEN)+ /NEWLINE-TOKEN
 
