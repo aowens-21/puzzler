@@ -410,7 +410,7 @@
               (let* ([first-id (first ids)]
                      [second-id (second ids)]
                      [target-count (string->number second-id)]
-                     [object-positions (hash-ref (get-field position-table puzzler-game) first-id)])
+                     [object-positions (hash-ref (get-field current-position-table puzzler-game) first-id)])
                 (if (= target-count (length object-positions))
                     (set! fulfilled? #t)
                     (void))))
