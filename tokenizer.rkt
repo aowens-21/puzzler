@@ -1,6 +1,6 @@
-#lang br
+#lang racket/base
+
 (require brag/support)
-(require br-parser-tools/lex-sre)
 
 (define (make-tokenizer port)
   (define (next-token)
@@ -31,9 +31,9 @@
         ["START_GOAL_MAP" (token 'START-GOAL-MAP-TOKEN lexeme)]
         ["END_GOAL_MAP" (token 'END-GOAL-MAP-TOKEN lexeme)]
         ["->" (token 'RULE-RESULT-TOKEN lexeme)]
-        [(or (:= 1 alphabetic) (:= 1 "#"))
+        [(union (:= 1 alphabetic) (:= 1 "#"))
          (token 'MAP-CHAR-TOKEN lexeme)]
-        [(or (:= 1 numeric) (:: "-" (:= 1 numeric)))
+        [(union (:= 1 numeric) (:: "-" (:= 1 numeric)))
          (token 'NUM-TOKEN lexeme)]
         [any-char (token lexeme)]))
     (puzzler-lexer port))

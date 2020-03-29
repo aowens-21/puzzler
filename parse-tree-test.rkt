@@ -1,4 +1,4 @@
-#lang br
+#lang racket/base
 (require puzzler/tokenizer puzzler/parser brag/support)
 
 (parse-to-datum (apply-tokenizer-maker make-tokenizer
