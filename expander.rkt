@@ -1,10 +1,10 @@
-#lang br/quicklang
+#lang racket/base
 
-(require racket/gui/base)
-(require racket/draw)
-(require racket/set)
 (require "./expander-helpers/game.rkt")
 (require "./expander-helpers/renderer.rkt")
+
+(require racket/gui racket/draw racket/set racket/class)
+(require br/define)
 
 ; The game's rendering component
 (define renderer (new puzzler-renderer%))
@@ -80,7 +80,7 @@
   (set! inner-goal-map-index 0))
 
 (define-macro (puzzler-map ROW ...)
-  (with-pattern ([CALLER-STX (syntax->datum caller-stx)])
+  (with-syntax ([CALLER-STX (syntax->datum caller-stx)])
     #'(let ([calling-pattern 'CALLER-STX])
         (send renderer setup-draw-calculations! (length (cdr calling-pattern)))
         (add-map-vector (length (cdr calling-pattern)))
@@ -482,3 +482,5 @@
     (> (set-count same-positions) 0)))
 
 (send game-frame show #t)
+
+(provide #%datum #%app #%top-interaction)
