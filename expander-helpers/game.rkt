@@ -1,4 +1,6 @@
-#lang racket
+#lang racket/base
+
+(require racket/class racket/list racket/string racket/vector)
 
 ; Terminology:
 ;
