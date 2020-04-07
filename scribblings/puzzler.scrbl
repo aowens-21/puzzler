@@ -10,3 +10,5 @@ Puzzler is a DSL designed to streamline the creation of 2D puzzle games. In gene
 
 @include-section["example-sokoban.scrbl"]
 @include-section["map-section.scrbl"]
+@include-section["draw-section.scrbl"]
+@include-section["action-section.scrbl"]

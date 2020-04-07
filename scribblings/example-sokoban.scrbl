@@ -1,6 +1,6 @@
 #lang scribble/manual
 
-@title{An Example: Sokoban}
+@title[#:tag "sokoban"]{An Example: Sokoban}
 
 A Puzzler program generates a @racket[racket/gui] program based on various @italic{sections} specified by its author. In this example, we will be looking at a game built with Puzzler
 called "Sokoban". @hyperlink["https://en.wikipedia.org/wiki/Sokoban"]{Sokoban} is a puzzle game in which the player must push boxes into specific locations on the map without blocking themselves or other boxes in and thus making the puzzle
