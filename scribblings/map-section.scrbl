@@ -1,6 +1,6 @@
 #lang scribble/manual
 
-@title{Maps}
+@title[#:tag "maps"]{Maps}
 
 Every game built with Puzzler will start with a @italic{map section}. This defines the "game world" so to speak, which is represented by
 a grid of characters.
