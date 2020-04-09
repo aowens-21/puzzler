@@ -12,3 +12,6 @@ Puzzler is a DSL designed to streamline the creation of 2D puzzle games. In gene
 @include-section["map-section.scrbl"]
 @include-section["draw-section.scrbl"]
 @include-section["action-section.scrbl"]
+@include-section["interaction-section.scrbl"]
+@include-section["win-lose-section.scrbl"]
+
