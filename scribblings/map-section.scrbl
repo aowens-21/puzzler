@@ -24,6 +24,7 @@ In Puzzler, a "#" character on the map means empty space, and any other characte
  #####
  ##P##
  #####
+ END_MAP
 }
 
 The above map is a 5x3 grid with some entity "P" (by convention we make the player "P", but it could be anything) in the center of 2nd row. This
@@ -36,6 +37,7 @@ do something like the following:
  ##P##
  ####
  ###
+ END_MAP
 }
 
 This would fail to build in Puzzler, as we are currently limited to making all Puzzler maps rectangular.

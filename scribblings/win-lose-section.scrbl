@@ -16,8 +16,8 @@ The @italic{win section} follows the pattern of all the other Puzzler sections:
 }
 
 Puzzler supports two types of win rules: @italic{count_items} and @italic{straight_path_to}. The @italic{count_items} takes a type of entity and a number and it is triggered when the number of
-the supplied entities on the map is equal to the number. @italic{straight_path_to} takes two entities and is triggered when there is either a horizontal or vertical clear path (unblocked by another another
-entity) between the two entity types. For example:
+that particular entities on the map is equal to the supplied number. @italic{straight_path_to} takes two entities and is triggered when there is either a horizontal or vertical clear path
+(unblocked by another entity) between the two entity types. For example:
 
 @verbatim{
  win:
@@ -55,5 +55,5 @@ Lose conditions are extremely similar to win conditions, except that they are de
  ...
 }
 
-@italic{lose_rule}s support the same types as @italic{win_rule}s, which were described earlier. There is currently no way to use a goal map to trigger a lose state in a Puzzler game.
+@italic{lose_rule}s support the same types as @italic{win_rule}s, which were described earlier. There is, however, currently @bold{no way to use a goal map to trigger a lose state in a Puzzler game}.
 

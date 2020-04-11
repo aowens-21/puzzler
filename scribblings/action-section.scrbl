@@ -17,8 +17,8 @@ The @italic{action section} starts off similar to the draw section, with the onl
  ...
 }
 
-@italic{Action rule}s consist of 3 parts: an entity, the key that invokes the action, a coordinate pair representing the change in position of the specified entity. This is easiest
-to visualize with an example, here's one from our @seclink["sokoban"]{Sokoban game}:
+@italic{Action rule}s consist of 3 parts: an entity, the key that invokes the action, and a coordinate pair representing the change in position of the specified entity. This is easiest
+to visualize with an example, so here's one from our @seclink["sokoban"]{Sokoban game}:
 
 @verbatim{
  action:
@@ -27,9 +27,10 @@ to visualize with an example, here's one from our @seclink["sokoban"]{Sokoban ga
 }
 
 We can break this rule down piece by piece, first noting that we are applying this action to the "P" entity (in our example this is the player). The next piece of information is the key to press
-to trigger the action, which we specify with the word "up" (key names are the ones returned from @racket[get-key-code] in racket/gui/base. The final part of our rule is a coordinate pair representing
-the change in x and change in y (dx,dy) that we want our "P" entity to move by when we press "up". For this we have (0, 1), which means move 0 in the x-direction and 1 in the y-direction,
-and in our case this works well because we want our "P" to move up by 1 grid square. The rest of the action section should make sense now:
+to trigger the action, which we specify with the word "up" (key names are the ones returned from @racket[get-key-code] in racket/gui/base). The final part of our rule is a coordinate pair representing
+the change in x and change in y (dx,dy) that we want our "P" entity to move by when we press "up". For this we have (0, 1), which means move 0 in the x-direction and positive 1 in the y-direction,
+and in our case this works well because we want our "P" to move up by 1 grid square. The rest of the action section should make sense now, as the remaining rules are just variations on the
+same formula:
 
 @verbatim{
  action:
@@ -39,4 +40,4 @@ and in our case this works well because we want our "P" to move up by 1 grid squ
  "P": "right" -> (1, 0)
 }
 
-All of the actions are defined on the "P" entity, and all we have to change is the key and coordinate pair to have movement in four directions.
+All of the actions are defined for the "P" entity, and all we have to change is the key and coordinate pair to have movement in four directions.

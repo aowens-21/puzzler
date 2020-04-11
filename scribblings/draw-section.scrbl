@@ -16,7 +16,7 @@ The Puzzler draw section looks like this:
  ...
 }
 
-Where @italic{<draw_rule>} is of the form @italic{"<entity_character" -> "<image_path>"}. Remember that in Puzzler every game entity is represented on the map as a single character like
+Where @italic{<draw_rule>} is of the form @italic{"<entity_character>" -> "<image_path>"}. Remember that in Puzzler every game entity is represented on the map as a single character like
 "P" or "X". So, for example, if we wanted to draw some image @italic{"player.png"} for our game entity "P", we would do the following:
 
 @verbatim{
@@ -28,7 +28,7 @@ This can be read as something like "P draws player.png". It is important to reme
 
 @section{Built-Ins}
 
-One special case of draw rules in Puzzler is the reserved word @italic{"rect"} as the image being drawn in a draw rule. Any entity which maps to "rect" in a draw rule will be drawn as a black box
+There is one special case of draw rules in Puzzler: the reserved word @italic{"rect"}. Any entity which maps to "rect" in a draw rule will be drawn as a black box
 the same size as a single grid square. In the Sokoban example we had:
 
 @verbatim{

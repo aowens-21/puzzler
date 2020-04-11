@@ -17,7 +17,7 @@ each rule on its own line:
 }
 
 These @italic{interaction rule}s consist of three parts: the acting entity (the one moving and thus triggering the interaction), the @italic{interaction verb}, and the entity being acted upon. The
-entities are represented by a single character, as usual, such as "P" or "B". The @italic{interaction verb} can be one of three words: push, stop, or grab. These are the three types of interaction
+entities are represented by a single character, as usual, such as "P" or "B". The @italic{interaction verb} can be one of three words: push, stop, or grab. These are the three types of interactions
 in Puzzler and they are shown in the example below:
 
 @verbatim{
@@ -27,7 +27,7 @@ in Puzzler and they are shown in the example below:
  "P" grab "T"
 }
 
-The first rule in this example says that whenever our "P" entity moves into a space where a "B" is occupying, the "P" will push the "B" in whatever direction "P" is moving in. It is important to
+The first rule in this example says that whenever a "P" entity moves into a space where a "B" is occupying, the "P" will push the "B" in whatever direction "P" is moving in. It is important to
 note that @bold{entities cannot be pushed outside the bounds of the map}.
 
 The second rule might seem a little confusing, but imagine for a second that in our game "B" means "box" and there are multiple boxes on the map. If our "P" can go pushing boxes around all day long,
@@ -35,7 +35,7 @@ we might want it so that if a "P" tries to push two boxes at a time (that is, pu
 cannot push other boxes. Interestingly enough, we could change this rule to @italic{"B" push "B"}, and our "P" entity would be able to push multiple boxes at a time.
 
 The final rule, "grab", could just as accurately be called "replace". When "P" moves into the space occupied by "T", it will "grab" it and thus remove it from the game's map. This can be useful if you want
-a game where your player has to navigate some puzzle and upon solving it they "grab" a trophy to win the game.
+a game where your player has to navigate some puzzle and upon solving it they "grab" an entity to win the game.
 
 @subsection{Conflicting Interactions}
 
@@ -62,5 +62,6 @@ It is best to explain events with an example:
 }
 
 This event, called @italic{onexit}, looks a lot like an @italic{interaction}. The difference is that this event triggers every time the first entity moves (thus the name, "onexit"). When the "P" entity
-exits a space on the map, that space will be filled with the second entity ("B").
+exits a space on the map, that space will be filled with the second entity ("B"). @italic{onexit} is definitely situational, and I would encourage you to check out
+@hyperlink["https://github.com/aowens-21/puzzler/blob/master/examples/trail-example.rkt"]{@italic{trail-example.rkt}} on the Puzzler GitHub for a better idea of how it might be used.
 

@@ -71,10 +71,10 @@ All Puzzler programs begin with a @italic{map section}. Our @italic{map section}
 }
 
 The @italic{map section} starts with a line @italic{@bold{START_MAP}}, which denotes the beginning of the @italic{map section}. Each newline following this is considered
-a new row in the grid. In this example you can see the first row is "P#####". The character "#" represents empty space in a Puzzler map, while all other character
-are special entities within the game.
+a new row in the grid. In this example you can see the first row is "P#####". The character "#" represents an empty space in a Puzzler map, while all other character
+are special entities in the game.
 
-The "P" in this map represents the player, and similarly the "B" represents a box. It is easy to track which characters map to which entities by looking in the game's
+The "P" in this map represents the player, and similarly the "B"s represent the boxes. It is easy to track which characters map to which entities by looking in the game's
 @italic{draw section}, which we will cover in a bit.
 
 The map section is closed with a line @italic{@bold{END_MAP}}, denoting that we are done describing the game's map.
@@ -102,8 +102,7 @@ the boxes into their designated locations".
 @section{The Draw Section}
 
 The purpose of the @italic{draw section} is to map the game entities on a Puzzler map to their image files. This also serves as a list of all the important entities within the game.
-The @italic{draw section} consists of one or more @italic{draw rule}s, which associate an entity to an image file (whose path is relative to the current directory). In our Sokoban
-example, the @italic{draw section} looks like this:
+The @italic{draw section} consists of one or more @italic{draw rule}s, which associate an entity to an image file. In our Sokoban example, the @italic{draw section} looks like this:
 
 @verbatim{         
  draw:
@@ -129,14 +128,14 @@ comes in. The @italic{action section} describes how the player interacts with th
  "P": "right" -> (1, 0)
 }
 
-The syntax for an @italic{action rule} is straightforward, for example, the first rule in this example states that whenever the "up" key is pressed on the keyboard, any "P" entity (in this case the player)
+The first rule in this example states that whenever the "up" key is pressed on the keyboard, any "P" entity (in this case the player)
 will have its position changed by 0 in the X direction and 1 in the Y direction. The rest of the @italic{action rule}s are very similar, changing only the key and the DX/DY values. In this
 game there is only one "P", but if there were multiple then these actions would be applied to all of the matched entities.
 
 @section{The Interaction Section}
 
 With the @italic{action section} we have seen how to let players interact with the game world, but how do entities interact with each other? These kinds of interactions are expressed via
-the @italic{interaction section}. Sticking with Puzzler tradition, this section consists of one or more @italic{interaction rule}s. The interactions in Sokoban are expressed like so:
+the @italic{interaction section}. Sticking with Puzzler tradition, this section consists of one or more @italic{interaction rule}s. The interactions in Sokoban are expressed like this:
 
 @verbatim{
  interactions:
@@ -147,7 +146,7 @@ the @italic{interaction section}. Sticking with Puzzler tradition, this section 
 The way to read each of these rules is "When Entity1 collides with Entity2, X Interaction happens". So in the first rule, we have '"P" push "B"', which means that the entity "P" will "push" the entity
 "B" upon collision. The "push" interaction is something built in to Puzzler which means that the entity being acted upon---in this case "B"---will be moved in whatever direction the entity acting upon
 it---"P"---is moving in. Similarly, the second rule states that when a "B" entity interacts with another "B" entity, it will be "stopped". The "stop" interaction is also built in, which essentially just
-blocks movement from happening.
+blocks movement.
 
 @section{Wrapping Up: A Finished Game}
 
@@ -157,6 +156,6 @@ by simply adding a few more rules. This is the purpose of the Puzzler language, 
 and interacting systems.
 
 If you are looking for more information about the specifics of Puzzler, please check out the documentation for each of the different @italic{sections}. If you'd like to see more examples of games that
-can be built with Puzzler, clone the source code on GitHub and run them yourself or view the documentation on the different examples.
+can be built with Puzzler, clone or view the source code for Puzzler @hyperlink["https://en.wikipedia.org/wiki/Sokoban"]{on GitHub} and look in the examples directory.
 
 Thanks for reading and have fun building puzzle games!
