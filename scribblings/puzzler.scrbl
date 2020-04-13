@@ -4,6 +4,8 @@
 
 @author{Alex Owens}
 
+@defmodulelang[puzzler]
+
 Puzzler is a DSL designed to streamline the creation of 2D puzzle games. In general, Puzzler allows its users to express simple grid-based puzzle games in a succinct and declarative way.
 
 @table-of-contents[]
