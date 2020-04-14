@@ -15,7 +15,7 @@ END_MAP
 draw:
   "P" -> "player.png"
   "W" -> "rect"
-  "T" -> "coop.jpg"
+  "T" -> "chicken.jpg"
 
 action:
   "P": "up" -> (0, 1)
