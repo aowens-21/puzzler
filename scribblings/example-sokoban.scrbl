@@ -8,7 +8,7 @@ impossible to solve. It was originally released in 1982, but has spawned numerou
 
 A screenshot of this game running on Puzzler (with my excellent programmer art) is below:
  
-@centered{@image["sokoban.png" #:scale 0.5]}
+@centered{@image["scribblings/sokoban.png" #:scale 0.5]}
 
 @centered{Sokoban Game}
 
